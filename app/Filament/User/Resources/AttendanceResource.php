@@ -48,26 +48,26 @@ class AttendanceResource extends Resource
                 TextColumn::make('date'),
                 TextColumn::make('time_in'),
                 TextColumn::make('time_out'),
-               BadgeColumn::make('status')
+              BadgeColumn::make('status')
     ->label('Status')
     ->colors([
-        'success' => 'on time',
-        'danger' => fn ($state) => in_array($state, ['late', 'absent']),
-        'secondary' => 'absent',
+        'success' => fn ($state) => in_array($state, ['on time', 'undertime']),
+        'danger' => fn ($state) => in_array($state, ['late', 'late and undertime', 'absent']),
     ])
     ->icons([
         'heroicon-o-check-circle' => 'on time',
-        'heroicon-o-exclamation-circle' => 'late',
+        'heroicon-o-exclamation-circle' => fn ($state) => in_array($state, ['late', 'undertime', 'late and undertime']),
         'heroicon-o-x-circle' => 'absent',
     ])
-                    ->sortable()
-                    ->searchable(),
+    ->sortable()
+    ->searchable(),
+
             ])
             ->actions([
     Tables\Actions\Action::make('Time In')
         ->action(function ($record) {
             $now = now();
-            $officialEnd = now()->setTime(14, 0);
+            $officialEnd = now()->setTime(16, 30);
 
             if ($now->greaterThan($officialEnd)) {
                 $record->update([
@@ -82,7 +82,7 @@ class AttendanceResource extends Resource
         })
         ->hidden(function ($record) {
             $now = now()->format('H:i:s');
-            $officialEnd = '01:00:00';
+            $officialEnd = '16:30:00';
 
             return filled($record->time_in) || $now > $officialEnd || $record->status === 'absent';
         }),

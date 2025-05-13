@@ -15,7 +15,7 @@ return new class extends Migration
             $table->date('date')->default(now());
             $table->time('time_in')->now()->nullable();
             $table->time('time_out')->now()->nullable();
-            $table->enum('status', ['on time', 'late', 'absent','undertime'])->nullable();
+            $table->enum('status', ['on time', 'late', 'absent','undertime','late and undertime'])->nullable();
             $table->boolean('deduction_applied')->default(false);
             $table->timestamps();
         });

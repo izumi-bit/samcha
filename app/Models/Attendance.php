@@ -34,22 +34,29 @@ class Attendance extends Model
   protected static function booted()
     {
         static::saving(function ($attendance) {
-            $officialStart = '00:10:00';
-            $officialEnd = '01:00:00';
+            $officialStart = '16:10:00';
+            $officialEnd = '16:30:00';
 
             $now = now()->format('H:i:s');
             $timeIn = $attendance->time_in ? date('H:i:s', strtotime($attendance->time_in)) : null;
             $timeOut = $attendance->time_out ? date('H:i:s', strtotime($attendance->time_out)) : null;
 
-            if ($timeIn) {
-                $attendance->status = ($timeIn > $officialStart) ? 'late' : 'on time';
+          if ($timeIn) {
+    $isLate = $timeIn > $officialStart;
+    $isUndertime = $timeOut && $timeOut < $officialEnd;
 
-                if ($timeOut && $timeOut < $officialEnd) {
-                    $attendance->status = 'undertime';
-                }
-            } elseif ($now > $officialEnd) {
-                $attendance->status = 'absent';
-            }
+    if ($isLate && $isUndertime) {
+        $attendance->status = 'late and undertime';
+    } elseif ($isLate) {
+        $attendance->status = 'late';
+    } elseif ($isUndertime) {
+        $attendance->status = 'undertime';
+    } else {
+        $attendance->status = 'on time';
+    }
+} elseif ($now > $officialEnd) {
+    $attendance->status = 'absent';
+}
 
 
 

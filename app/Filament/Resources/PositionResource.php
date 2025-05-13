@@ -4,11 +4,15 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PositionResource\Pages;
 use App\Models\Position;
+use App\Models\Department;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -26,15 +30,15 @@ class PositionResource extends Resource
         return Filament::getCurrentPanel()?->getId() !== 'user';
     }
 
-   public static function canEdit(Model $record): bool
-   {
-    return Filament::getCurrentPanel()?->getId()!=='user';
-   }
-   public static function canDelete(Model $record): bool
-   {
-    return Filament::getCurrentPanel()?->getId()!=='user';
-   }
+    public static function canEdit(Model $record): bool
+    {
+        return Filament::getCurrentPanel()?->getId() !== 'user';
+    }
 
+    public static function canDelete(Model $record): bool
+    {
+        return Filament::getCurrentPanel()?->getId() !== 'user';
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -45,8 +49,23 @@ class PositionResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
                 Textarea::make('details')
                     ->nullable(),
+
+                Select::make('department_id')
+                    ->label('Department')
+                    ->relationship('department', 'name')
+                    ->required(),
+
+                TextInput::make('rank')
+                    ->numeric()
+                    ->minValue(1)
+                    ->nullable(),
+
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true),
             ]);
     }
 
@@ -56,9 +75,22 @@ class PositionResource extends Resource
             ->columns([
                 TextColumn::make('id')->sortable(),
                 TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('details')->sortable()->searchable(),
+                TextColumn::make('department.name')->label('Department')->sortable()->searchable(),
+                TextColumn::make('rank')->sortable(),
+                TextColumn::make('details')->limit(30)->wrap(),
+                BadgeColumn::make('is_active')
+    ->label('Status')
+    ->formatStateUsing(fn ($state) => $state ? 'Active' : 'Inactive')
+    ->colors([
+        'success' => fn ($state) => $state,
+        'danger' => fn ($state) => !$state,
+    ])
+                    ->colors([
+                        'success' => true,
+                        'danger' => false,
+                    ]),
             ])
-            ->filters([]) 
+            ->filters([])
             ->actions([
                 EditAction::make(),
                 DeleteAction::make(),

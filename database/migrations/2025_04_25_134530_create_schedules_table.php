@@ -12,6 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade'); 
             $table->string('name');
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();   
+            $table->enum('type', ['Work Shift', 'Meeting', 'Salary Day'])->default('Work Shift');
             $table->date('date');
             $table->timestamps();
         });

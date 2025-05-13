@@ -48,30 +48,56 @@ class AttendanceResource extends Resource
                 TextColumn::make('date'),
                 TextColumn::make('time_in'),
                 TextColumn::make('time_out'),
-                BadgeColumn::make('status')
-                    ->label('Status')
-                    ->colors([
-                        'success' => 'on time',
-                        'danger' => 'late',
-                        'secondary' => 'absent',
-                    ])
-                    ->icons([
-                        'heroicon-o-check-circle' => 'on time',
-                        'heroicon-o-exclamation-circle' => 'late',
-                        'heroicon-o-x-circle' => 'absent',
-                    ])
+               BadgeColumn::make('status')
+    ->label('Status')
+    ->colors([
+        'success' => 'on time',
+        'danger' => fn ($state) => in_array($state, ['late', 'absent']),
+        'secondary' => 'absent',
+    ])
+    ->icons([
+        'heroicon-o-check-circle' => 'on time',
+        'heroicon-o-exclamation-circle' => 'late',
+        'heroicon-o-x-circle' => 'absent',
+    ])
                     ->sortable()
                     ->searchable(),
             ])
             ->actions([
-                Tables\Actions\Action::make('Time In')
-                    ->action(fn ($record) => $record->update(['time_in' => now()->format('H:i:s')]))
-                    ->hidden(fn ($record) => filled($record->time_in)),
+    Tables\Actions\Action::make('Time In')
+        ->action(function ($record) {
+            $now = now();
+            $officialEnd = now()->setTime(14, 0);
 
-                Tables\Actions\Action::make('Time Out')
-                    ->action(fn ($record) => $record->update(['time_out' => now()->format('H:i:s')]))
-                    ->hidden(fn ($record) => empty($record->time_in) || filled($record->time_out)),
-            ])
+            if ($now->greaterThan($officialEnd)) {
+                $record->update([
+                    'status' => 'absent',
+                ]);
+                return;
+            }
+
+            $record->update([
+                'time_in' => $now->format('H:i:s'),
+            ]);
+        })
+        ->hidden(function ($record) {
+            $now = now()->format('H:i:s');
+            $officialEnd = '01:00:00';
+
+            return filled($record->time_in) || $now > $officialEnd || $record->status === 'absent';
+        }),
+
+    Tables\Actions\Action::make('Time Out')
+        ->action(function ($record) {
+            $record->update([
+                'time_out' => now()->format('H:i:s'),
+            ]);
+        })
+        ->hidden(function ($record) {
+            return blank($record->time_in) || filled($record->time_out);
+        }),
+])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

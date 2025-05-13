@@ -77,6 +77,11 @@ class SalaryResource extends Resource
                 TextColumn::make('employee.first_name')->label('Employee')->sortable()->searchable(),
             TextColumn::make('basic_salary')->label('Basic Salary')->money('PHP')->sortable(),
 
+            TextColumn::make('allowances')
+                ->label('Allowances')
+                ->money('PHP')
+                ->sortable(),
+
             TextColumn::make('total_benefits')
                 ->label('Benefit Deductions')
                 ->money('PHP')

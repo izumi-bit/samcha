@@ -99,9 +99,17 @@ class EmployeeResource extends Resource
                 TextColumn::make('cv')
                     ->label('CV')
                     ->url(fn (Employee $record) => asset('storage/uploads/cvs/' . $record->cv), true),
-                Tables\Columns\TextColumn::make('salary.net_salary')
+                Tables\Columns\TextColumn::make('salary.net_salary')                     
                     ->label('Basic Salary')
                     ->money('PHP'),
+                     TextColumn::make('schedule')
+    ->label('Schedule')
+    ->getStateUsing(function (Employee $record) {
+        $latest = $record->schedules()->latest('type')->first();
+        return $latest
+            ? $latest->type. ' (' . $latest->start_time . ' - ' . $latest->end_time . ')'
+            : 'No schedule';
+    }),
 
                 // Display payroll status
                 TextColumn::make('latest_payroll_status')

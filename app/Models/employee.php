@@ -38,4 +38,21 @@ class Employee extends Model
     {
         return $this->hasMany(Benefit::class);
     }
+
+    public function getCalendarData()
+{
+  //**  return $this->attendances->map(function ($attendance) {
+       // return [
+        //    'title' => ucfirst($attendance->status),
+     //       'start' => $attendance->date,
+        //    'color' => match ($attendance->status) {
+      //          'on time' => 'green',
+     //           'late' => 'red',
+     //           'absent' => 'white',
+      //          default => 'gray',
+     ////       },
+  //      ];
+  //  }); 
+    
+}
 }

@@ -13,9 +13,16 @@ return new class extends Migration
     {
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->text('details')->nullable();
-            $table->timestamps();
+    $table->string('name')->unique();
+    $table->text('details')->nullable();
+
+    $table->foreignId('department_id')->constrained()->onDelete('cascade');
+    $table->unsignedTinyInteger('rank')->nullable();
+    $table->boolean('is_active')->default(true);
+    $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+
+    $table->timestamps();
+    $table->softDeletes();
         });
     }
 

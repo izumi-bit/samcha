@@ -13,6 +13,7 @@ class Attendance extends Model
         'time_in',
         'time_out',
         'status',
+        'deduction_applied',
     ];
 
     public function user()
@@ -30,60 +31,42 @@ class Attendance extends Model
         return $this->belongsTo(Employee::class);
     }
 
-    protected static function booted()
-{
-static::saving(function ($attendance) {
-    if ($attendance->time_in) {
-        $officialStart = '11:00:00';
-        $officialEnd = '13:00:00';
+  protected static function booted()
+    {
+        static::saving(function ($attendance) {
+            $officialStart = '00:10:00';
+            $officialEnd = '01:00:00';
 
-        $timeIn = date('H:i:s', strtotime($attendance->time_in));
+            $now = now()->format('H:i:s');
+            $timeIn = $attendance->time_in ? date('H:i:s', strtotime($attendance->time_in)) : null;
+            $timeOut = $attendance->time_out ? date('H:i:s', strtotime($attendance->time_out)) : null;
 
-        if ($timeIn > $officialStart) {
-            $attendance->status = 'late';
-        } else {
-            $attendance->status = 'on time';
-        }
-    }
+            if ($timeIn) {
+                $attendance->status = ($timeIn > $officialStart) ? 'late' : 'on time';
 
-        // If time_out is being set, ensure it's after time_in
-      if ($attendance->time_out) {
-    $timeOut = date('H:i:s', strtotime($attendance->time_out));
+                if ($timeOut && $timeOut < $officialEnd) {
+                    $attendance->status = 'undertime';
+                }
+            } elseif ($now > $officialEnd) {
+                $attendance->status = 'absent';
+            }
 
-    if ($timeOut < $officialEnd) {
-        $attendance->status = 'absent';
-    }
-}
 
-        // If the status is 'late', apply the deduction logic
+
+        // Apply deduction if late
         if ($attendance->status === 'late') {
             $employee = $attendance->employee;
-            if ($employee) {
-                // Assuming each employee has one salary record
+            if ($employee && !$attendance->deduction_applied) {
                 $salary = $employee->salary;
-
                 if ($salary) {
-                    // Prevent double deduction: Only apply deduction if it hasn't been applied yet
-                    if (!$attendance->deduction_applied) { // Add a check for this flag
-                        // Calculate deduction as 10% of the basic salary (or modify as needed)
-                        $deductionAmount = $salary->basic_salary * 0.10; // 10% deduction
-
-                        // Add this deduction to the employee's existing deductions
-                        $salary->deductions += $deductionAmount;
-
-                        // Recalculate net salary
-                        $salary->net_salary = $salary->basic_salary + $salary->allowances - $salary->deductions;
-
-                        // Save the updated salary record
-                        $salary->save();
-
-                        // Mark that the deduction has been applied to avoid double deduction
-                        $attendance->deduction_applied = true;
-                    }
+                    $deductionAmount = $salary->basic_salary * 0.10;
+                    $salary->deductions += $deductionAmount;
+                    $salary->net_salary = $salary->basic_salary + $salary->allowances - $salary->deductions;
+                    $salary->save();
+                    $attendance->deduction_applied = true;
                 }
             }
         }
     });
 }
-
 }

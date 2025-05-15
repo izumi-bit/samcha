@@ -67,7 +67,7 @@ class AttendanceResource extends Resource
     Tables\Actions\Action::make('Time In')
         ->action(function ($record) {
             $now = now();
-            $officialEnd = now()->setTime(16, 30);
+            $officialEnd = now()->setTime(11, 00);
 
             if ($now->greaterThan($officialEnd)) {
                 $record->update([
@@ -82,7 +82,7 @@ class AttendanceResource extends Resource
         })
         ->hidden(function ($record) {
             $now = now()->format('H:i:s');
-            $officialEnd = '16:30:00';
+            $officialEnd = '11:00:00';
 
             return filled($record->time_in) || $now > $officialEnd || $record->status === 'absent';
         }),

@@ -26,7 +26,7 @@ class EmployeeJobBoard extends Page implements HasTable
             ->columns([
                 Tables\Columns\TextColumn::make('title')->label('Job Title')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('description')->label('Description')->limit(50)->wrap(),
-                Tables\Columns\TextColumn::make('department')->label('Department'),
+                Tables\Columns\TextColumn::make('department.name')->label('Department'),
                 Tables\Columns\TextColumn::make('created_at')->label('Posted On')->date()->sortable(),
             ]);
     }

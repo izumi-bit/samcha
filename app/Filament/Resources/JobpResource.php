@@ -10,6 +10,7 @@ use App\Models\Jobp;
 use App\Models\Job;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -32,7 +33,10 @@ class JobpResource extends Resource
         return $form
             ->schema([
                    TextInput::make('title')->required(),
-        TextInput::make('department')->required(),
+       Select::make('department_id')
+                    ->label('Department')
+                    ->relationship('department', 'name')
+                    ->required(),
         Textarea::make('description')->required(),
         TextInput::make('location'),
         DatePicker::make('deadline')->required(),
@@ -45,7 +49,9 @@ class JobpResource extends Resource
         return $table
             ->columns([
                        TextColumn::make('title')->searchable()->sortable(),
-        TextColumn::make('department'),
+   TextColumn::make('department.name')
+                    ->label('Department'),
+              TextColumn::make('description'),
         TextColumn::make('location'),
         TextColumn::make('deadline')->date(),
         IconColumn::make('is_active')->boolean()->label('Active'),

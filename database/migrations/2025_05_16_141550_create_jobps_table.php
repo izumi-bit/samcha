@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('jobps', function (Blueprint $table) {
                  $table->id();
         $table->string('title');
-        $table->string('department');
+            $table->foreignId('department_id')->constrained()->onDelete('cascade');
         $table->text('description');
         $table->string('location')->nullable();
         $table->date('deadline');

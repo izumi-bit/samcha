@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 class Jobp extends Model
 {
        protected $fillable = [
-        'title', 'department', 'description', 'location', 'deadline', 'is_active',
+        'title', 'department_id', 'description', 'location', 'deadline', 'is_active',
     ];
 
     protected $casts = [
@@ -20,5 +20,9 @@ class Jobp extends Model
     public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true)->where('deadline', '>=', now());
+    }
+        public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

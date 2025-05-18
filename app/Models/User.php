@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Employee;
+use App\Models\Record;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
@@ -53,5 +54,6 @@ class User extends Authenticatable
 {
     return $this->hasOne(Employee::class);
 }
+
 
 }

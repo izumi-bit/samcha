@@ -34,8 +34,8 @@ class Attendance extends Model
   protected static function booted()
     {
         static::saving(function ($attendance) {
-            $officialStart = '09:10:00';
-            $officialEnd = '11:00:00';
+            $officialStart = '12:10:00';
+            $officialEnd = '12:55:00';
 
             $now = now()->format('H:i:s');
             $timeIn = $attendance->time_in ? date('H:i:s', strtotime($attendance->time_in)) : null;
